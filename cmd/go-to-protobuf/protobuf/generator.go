@@ -45,11 +45,14 @@ type genProtoIDL struct {
 }
 
 func (g *genProtoIDL) PackageVars(c *generator.Context) []string {
+	fmt.Println("PackageVars g.omitGogo:", g.omitGogo)
 	if g.omitGogo {
+		fmt.Println("PackageVars g.omitGogo 1111")
 		return []string{
 			fmt.Sprintf("option go_package = %q;", g.localGoPackage.Name),
 		}
 	}
+	fmt.Println("PackageVars g.omitGogo 22222")
 	return []string{
 		"option (gogoproto.marshaler_all) = true;",
 		"option (gogoproto.stable_marshaler_all) = true;",
@@ -153,6 +156,7 @@ func (g *genProtoIDL) Imports(c *generator.Context) (imports []string) {
 		if g.omitGogo && line == "github.com/gogo/protobuf/gogoproto/gogo.proto" {
 			continue
 		}
+		fmt.Println("line:", line)
 		lines = append(lines, line)
 	}
 	return lines
@@ -739,6 +743,9 @@ func formatProtoFile(source []byte) ([]byte, error) {
 
 func assembleProtoFile(w io.Writer, f *generator.File) {
 	w.Write(f.Header)
+
+	//f.Imports["k8s.io/api/core/v1/generated.proto"] = struct{}{}
+	fmt.Println("f.Imports:", f.Imports)
 
 	fmt.Fprint(w, "syntax = 'proto2';\n\n")
 

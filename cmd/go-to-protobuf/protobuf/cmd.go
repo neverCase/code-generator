@@ -80,6 +80,8 @@ func New() *Generator {
 			`k8s.io/apimachinery/pkg/apis/meta/v1`,
 			`k8s.io/apimachinery/pkg/apis/meta/v1beta1`,
 			`k8s.io/apimachinery/pkg/apis/testapigroup/v1`,
+			`+k8s.io/api/core/v1`,
+			`github.com/nevercase/k8s-controller-custom-resource/pkg/apis/mysqloperator/v1`,
 		}, ","),
 		Packages:           "",
 		DropEmbeddedFields: "k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta",
@@ -145,6 +147,9 @@ func Run(g *Generator) {
 		log.Fatalf("Both apimachinery-packages and packages are empty. At least one package must be specified.")
 	}
 
+	fmt.Println("packages: ", packages)
+	fmt.Println("11111111111111")
+
 	for _, d := range packages {
 		generateAllTypes, outputPackage := true, true
 		switch {
@@ -167,11 +172,17 @@ func Run(g *Generator) {
 		p.HeaderText = header
 		protobufNames.Add(p)
 		if outputPackage {
+			fmt.Println("newProtobufPackage name:", name)
 			outputPackages = append(outputPackages, p)
 		} else {
 			nonOutputPackages[name] = struct{}{}
 		}
 	}
+
+	fmt.Println("outputPackages:", outputPackages)
+	fmt.Println("nonOutputPackages:", nonOutputPackages)
+
+	fmt.Println("22222222222222")
 
 	if !g.Common.VerifyOnly {
 		for _, p := range outputPackages {
@@ -184,6 +195,8 @@ func Run(g *Generator) {
 	if g.Clean {
 		return
 	}
+
+	fmt.Println("2.1")
 
 	for _, p := range protobufNames.List() {
 		if err := b.AddDir(p.Path()); err != nil {
@@ -206,8 +219,13 @@ func Run(g *Generator) {
 	c.Verify = g.Common.VerifyOnly
 	c.FileTypes["protoidl"] = NewProtoFile()
 
+	fmt.Println("protobufNames.packages:", protobufNames.packages)
+
 	// order package by imports, importees first
 	deps := deps(c, protobufNames.packages)
+
+	fmt.Println("deps:", deps)
+
 	order, err := importOrder(deps)
 	if err != nil {
 		log.Fatalf("Failed to order packages by imports: %v", err)
@@ -243,9 +261,13 @@ func Run(g *Generator) {
 		log.Fatalf("Failed executing local generator: %v", err)
 	}
 
+	fmt.Println("3333333333333")
+
 	if g.OnlyIDL {
 		return
 	}
+
+	fmt.Println("44444444444")
 
 	if _, err := exec.LookPath("protoc"); err != nil {
 		log.Fatalf("Unable to find 'protoc': %v", err)
@@ -319,9 +341,13 @@ func Run(g *Generator) {
 		}
 	}
 
+	fmt.Println("*********** g.SkipGeneratedRewrite:", g.SkipGeneratedRewrite)
+
 	if g.SkipGeneratedRewrite {
 		return
 	}
+
+	fmt.Println("*********** g.KeepGogoproto:", g.KeepGogoproto)
 
 	if !g.KeepGogoproto {
 		// generate, but do so without gogoprotobuf extensions

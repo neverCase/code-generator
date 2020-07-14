@@ -30,6 +30,7 @@ import (
 )
 
 func newProtobufPackage(packagePath, packageName string, generateAll bool, omitFieldTypes map[types.Name]struct{}) *protobufPackage {
+	fmt.Println("newProtobufPackage =======")
 	pkg := &protobufPackage{
 		DefaultPackage: generator.DefaultPackage{
 			// The protobuf package name (foo.bar.baz)
@@ -90,7 +91,9 @@ type protobufPackage struct {
 }
 
 func (p *protobufPackage) Clean(outputBase string) error {
+	return nil
 	for _, s := range []string{p.ImportPath(), p.OutputPath()} {
+		fmt.Println("clean:", filepath.Join(outputBase, s))
 		if err := os.Remove(filepath.Join(outputBase, s)); err != nil && !os.IsNotExist(err) {
 			return err
 		}
@@ -184,6 +187,8 @@ func (p *protobufPackage) generatorFunc(c *generator.Context) []generator.Genera
 
 	p.Imports.AddNullable()
 
+	fmt.Println("generatorFunc ======= p.OmitGogo:", p.OmitGogo)
+
 	generators = append(generators, &genProtoIDL{
 		DefaultGen: generator.DefaultGen{
 			OptionalName: "generated",
@@ -193,6 +198,7 @@ func (p *protobufPackage) generatorFunc(c *generator.Context) []generator.Genera
 		imports:        p.Imports,
 		generateAll:    p.GenerateAll,
 		omitGogo:       p.OmitGogo,
+		//omitGogo:       true,
 		omitFieldTypes: p.OmitFieldTypes,
 	})
 	return generators
